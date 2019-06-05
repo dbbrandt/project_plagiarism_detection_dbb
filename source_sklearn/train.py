@@ -7,6 +7,9 @@ import pandas as pd
 from sklearn.externals import joblib
 
 ## TODO: Import any additional libraries you need to define a model
+from sklearn.linear_model import LinearRegression
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
 
 
 # Provided model load function
@@ -36,13 +39,16 @@ if __name__ == '__main__':
     # Do not need to change
     parser.add_argument('--output-data-dir', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
     parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
-    parser.add_argument('--data-dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--data-dir', type=str, default=os.environ['SM_CHANNEL_TRAINING'])
     
     ## TODO: Add any additional arguments that you will need to pass into your model
+    parser.add_argument('--max_iter', type=int, default=100)
+    parser.add_argument('--hidden_layer_1', type=int, default=20)
+    parser.add_argument('--hidden_layer_2', type=int, default=0)
     
     # args holds all passed-in arguments
     args = parser.parse_args()
-
+    
     # Read in csv training file
     training_dir = args.data_dir
     train_data = pd.read_csv(os.path.join(training_dir, "train.csv"), header=None, names=None)
@@ -56,11 +62,11 @@ if __name__ == '__main__':
     
 
     ## TODO: Define a model 
-    model = None
-    
+    hidden_layers = (args.hidden_layer_1,) if args.hidden_layer_2 == 0 else (args.hidden_layer_1, args.hidden_layer_2)
+    model = MLPClassifier(solver='sgd',max_iter=args.max_iter, alpha=1, hidden_layer_sizes=hidden_layers, random_state=1)
     
     ## TODO: Train the model
-    
+    model.fit(train_x, train_y)
     
     
     ## --- End of your code  --- ##
